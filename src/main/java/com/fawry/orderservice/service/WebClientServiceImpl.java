@@ -1,5 +1,6 @@
 package com.fawry.orderservice.service;
 
+import com.fawry.orderservice.dto.CouponRequsetModel;
 import com.fawry.orderservice.dto.ItemRequestModel;
 import com.fawry.orderservice.dto.ProductResponseModel;
 import com.fawry.orderservice.dto.TransactionModel;
@@ -20,7 +21,7 @@ import java.util.List;
 public class WebClientServiceImpl implements WebClientService {
 
   private final View error;
-  private WebClient.Builder webClient;
+  private final WebClient.Builder webClient;
 
   @Override
   public void validateCoupon(String couponCode, String customerEmail) {
@@ -29,15 +30,15 @@ public class WebClientServiceImpl implements WebClientService {
         .build()
         .get()
         .uri(
-            "",
+            "http://localhost:8080/consumptions/validate",
             uriBuilder ->
                 uriBuilder
                     .queryParam("couponCode", couponCode)
-                    .queryParam("customerEmail", customerEmail)
+                    .queryParam("userEmail", customerEmail)
                     .build())
         .retrieve()
         .onStatus(
-            HttpStatusCode::is4xxClientError,
+            HttpStatusCode::isError,
             clientResponse ->
                 clientResponse
                     .bodyToMono(GlobalError.class)
@@ -92,12 +93,11 @@ public class WebClientServiceImpl implements WebClientService {
         .build()
         .get()
         .uri(
-            "",
+            "http://localhost:8080/consumptions/calculate-amount",
             uriBuilder ->
                 uriBuilder
-                    .queryParam("code", couponCode)
-                    .queryParam("email", customerEmail)
-                    .queryParam("price", invoiceAmount)
+                    .queryParam("couponCode", couponCode)
+                    .queryParam("amount", invoiceAmount)
                     .build())
         .retrieve()
         .onStatus(
@@ -166,4 +166,22 @@ public class WebClientServiceImpl implements WebClientService {
         .block();
   }
 
+  @Override
+  public void consumeCoupon(CouponRequsetModel couponRequest) {
+
+    webClient
+        .build()
+        .post()
+        .uri("http://localhost:8080/consumptions/create")
+        .bodyValue(couponRequest)
+        .retrieve()
+        .onStatus(
+            HttpStatusCode::isError,
+            clientResponse ->
+                clientResponse
+                    .bodyToMono(ClientException.class)
+                    .flatMap(error -> Mono.error(new ClientException(error.getMessage()))))
+        .bodyToMono(void.class)
+        .block();
+  }
 }

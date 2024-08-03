@@ -1,5 +1,6 @@
 package com.fawry.orderservice.service;
 
+import com.fawry.orderservice.dto.CouponRequsetModel;
 import com.fawry.orderservice.dto.ItemRequestModel;
 import com.fawry.orderservice.dto.ProductResponseModel;
 import com.fawry.orderservice.dto.TransactionModel;
@@ -21,5 +22,7 @@ public interface WebClientService {
   void depositInvoiceAmountIntoMerchantBankAccount(TransactionModel depositRequestModel);
 
   void consumeStock(List<ItemRequestModel> itemRequests);
+
+  void consumeCoupon(CouponRequsetModel couponRequest);
 
 }
