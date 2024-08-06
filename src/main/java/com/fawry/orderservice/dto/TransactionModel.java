@@ -7,9 +7,9 @@ import lombok.Data;
 @Builder
 public class TransactionModel {
 
-  private String cardNumber;
+  private String CardNumber;
 
-  private String cvv;
+  private String method;
 
-  private Double amount;
+  private double amount;
 }

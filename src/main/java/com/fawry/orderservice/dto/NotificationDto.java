@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ItemRequestModel {
+public class NotificationDto {
 
-  private int productId;
+    private String orderId;
+    private String customerEmail;
+    private String merchantEmail;
+    private String message;
 
-  private int storeId;
 
-  private int quantity;
 }
-

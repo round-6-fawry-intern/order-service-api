@@ -1,5 +1,6 @@
 package com.fawry.orderservice.entity;
 
+import com.fawry.orderservice.entity.OrderItem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,7 +37,6 @@ public class Order {
   @Column(name = "updated_at")
   private Timestamp updatedAt;
 
-  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-  @JoinColumn(name = "order_id")
+  @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
   private List<OrderItem> orderItems;
 }

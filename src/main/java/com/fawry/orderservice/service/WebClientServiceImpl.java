@@ -1,12 +1,10 @@
 package com.fawry.orderservice.service;
 
-import com.fawry.orderservice.dto.CouponRequsetModel;
-import com.fawry.orderservice.dto.ItemRequestModel;
-import com.fawry.orderservice.dto.ProductResponseModel;
-import com.fawry.orderservice.dto.TransactionModel;
+import com.fawry.orderservice.dto.*;
 import com.fawry.orderservice.error.GlobalError;
 import com.fawry.orderservice.error.IdsRequestError;
 import com.fawry.orderservice.exception.ClientException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -20,8 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebClientServiceImpl implements WebClientService {
 
-  private final View error;
   private final WebClient.Builder webClient;
+  private final View error;
 
   @Override
   public void validateCoupon(String couponCode, String customerEmail) {
@@ -54,7 +52,7 @@ public class WebClientServiceImpl implements WebClientService {
     webClient
         .build()
         .post()
-        .uri("")
+        .uri("http://localhost:8080/stocks/check")
         .bodyValue(itemRequestModels)
         .retrieve()
         .onStatus(
@@ -68,12 +66,13 @@ public class WebClientServiceImpl implements WebClientService {
   }
 
   @Override
-  public List<ProductResponseModel> getProducts(List<Integer> productIds) {
+  public List<ProductResponseModel> getProducts(List<Integer> ids) {
 
     return webClient
         .build()
-        .get()
-        .uri("", uriBuilder -> uriBuilder.queryParam("ids", productIds).build())
+        .post()
+        .uri("http://localhost:5050/products/find-by-ids")
+        .bodyValue(ids)
         .retrieve()
         .onStatus(
             HttpStatusCode::is4xxClientError,
@@ -112,12 +111,12 @@ public class WebClientServiceImpl implements WebClientService {
   }
 
   @Override
-  public void withdrawInvoiceAmountFromGuestBankAccount(TransactionModel withdrawRequestModel) {
+  public void withdrawInvoiceAmountFromGuestBankAccount(TransactionModel transactional) {
     webClient
         .build()
-        .post()
-        .uri("")
-        .bodyValue(withdrawRequestModel)
+        .put()
+        .uri("http://localhost:6060/account/transaction")
+        .bodyValue(transactional)
         .retrieve()
         .onStatus(
             HttpStatusCode::isError,
@@ -130,12 +129,12 @@ public class WebClientServiceImpl implements WebClientService {
   }
 
   @Override
-  public void depositInvoiceAmountIntoMerchantBankAccount(TransactionModel depositRequestModel) {
+  public void depositInvoiceAmountIntoMerchantBankAccount(TransactionModel transactional) {
     webClient
         .build()
-        .post()
-        .uri("")
-        .bodyValue(depositRequestModel)
+        .put()
+        .uri("http://localhost:6060/account/transaction")
+        .bodyValue(transactional)
         .retrieve()
         .onStatus(
             HttpStatusCode::isError,
@@ -153,7 +152,7 @@ public class WebClientServiceImpl implements WebClientService {
     webClient
         .build()
         .post()
-        .uri("")
+        .uri("http://localhost:8080/stocks/consume")
         .bodyValue(itemRequests)
         .retrieve()
         .onStatus(
@@ -182,6 +181,43 @@ public class WebClientServiceImpl implements WebClientService {
                     .bodyToMono(ClientException.class)
                     .flatMap(error -> Mono.error(new ClientException(error.getMessage()))))
         .bodyToMono(void.class)
+        .block();
+  }
+
+  @Override
+  public void sendOrderDetailsToNotificationsAPI(NotificationDto notificationDto) {
+
+    webClient
+        .build()
+        .post()
+        .uri("http://localhost:8083/sendOrderNotification")
+        .bodyValue(notificationDto)
+        .retrieve()
+        .onStatus(
+            HttpStatusCode::isError,
+            clientResponse ->
+                clientResponse
+                    .bodyToMono(ClientException.class)
+                    .flatMap(error -> Mono.error(new ClientException(error.getMessage()))))
+        .bodyToMono(String.class)
+        .block();
+  }
+
+  @Override
+  public StoreResponseDto getStoreById(long storeId) {
+    return webClient
+        .build()
+        .get()
+        .uri("http://localhost:8080/stores")
+        .attribute("id", storeId)
+        .retrieve()
+        .onStatus(
+            HttpStatusCode::isError,
+            clientResponse ->
+                clientResponse
+                    .bodyToMono(ClientException.class)
+                    .flatMap(error -> Mono.error(new ClientException(error.getMessage()))))
+        .bodyToMono(StoreResponseDto.class)
         .block();
   }
 }
