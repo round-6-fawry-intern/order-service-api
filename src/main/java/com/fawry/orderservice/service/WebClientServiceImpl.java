@@ -3,7 +3,9 @@ package com.fawry.orderservice.service;
 import com.fawry.orderservice.dto.*;
 import com.fawry.orderservice.error.GlobalError;
 import com.fawry.orderservice.error.IdsRequestError;
+import com.fawry.orderservice.error.ProductErrorModel;
 import com.fawry.orderservice.exception.ClientException;
+import com.fawry.orderservice.exception.ProductException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
@@ -28,7 +30,7 @@ public class WebClientServiceImpl implements WebClientService {
         .build()
         .get()
         .uri(
-            "http://localhost:8080/consumptions/validate",
+            "http://localhost:7070/consumptions/validate",
             uriBuilder ->
                 uriBuilder
                     .queryParam("couponCode", couponCode)
@@ -59,9 +61,9 @@ public class WebClientServiceImpl implements WebClientService {
             HttpStatusCode::is4xxClientError,
             clientResponse ->
                 clientResponse
-                    .bodyToMono(IdsRequestError.class)
-                    .flatMap(error -> Mono.error(new ClientException(error.getMessage()))))
-        .bodyToMono(void.class)
+                    .bodyToMono(ProductErrorModel.class)
+                    .flatMap(error -> Mono.error(new ProductException(error.getDetails()))))
+        .bodyToMono(String.class)
         .block();
   }
 
@@ -92,7 +94,7 @@ public class WebClientServiceImpl implements WebClientService {
         .build()
         .get()
         .uri(
-            "http://localhost:8080/consumptions/calculate-amount",
+            "http://localhost:7070/consumptions/calculate-amount",
             uriBuilder ->
                 uriBuilder
                     .queryParam("couponCode", couponCode)
@@ -161,7 +163,7 @@ public class WebClientServiceImpl implements WebClientService {
                 clientResponse
                     .bodyToMono(ClientException.class)
                     .flatMap(error -> Mono.error(new ClientException(error.getMessage()))))
-        .bodyToMono(void.class)
+        .bodyToMono(String.class)
         .block();
   }
 
@@ -171,7 +173,7 @@ public class WebClientServiceImpl implements WebClientService {
     webClient
         .build()
         .post()
-        .uri("http://localhost:8080/consumptions/create")
+        .uri("http://localhost:7070/consumptions/create")
         .bodyValue(couponRequest)
         .retrieve()
         .onStatus(

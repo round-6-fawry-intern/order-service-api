@@ -4,7 +4,6 @@ import com.fawry.orderservice.dto.*;
 import com.fawry.orderservice.entity.Order;
 import com.fawry.orderservice.entity.OrderItem;
 import com.fawry.orderservice.repository.OrderRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,7 @@ public class OrderServiceImpl implements OrderService {
   @Override
   public OrderDto createOrder(OrderRequestModel orderRequestModel) {
     // check product quantity
-//    webClientService.validateProductOutOfStock(orderRequestModel.getItems());
+    webClientService.validateProductOutOfStock(orderRequestModel.getItems());
 
     // get all products by ids
 
@@ -118,7 +117,7 @@ public class OrderServiceImpl implements OrderService {
     System.out.println(createdOrder);
     // consume stock
 
-//    webClientService.consumeStock(orderRequestModel.getItems());
+    webClientService.consumeStock(orderRequestModel.getItems());
 
     //     Consume Copoun -----
 
