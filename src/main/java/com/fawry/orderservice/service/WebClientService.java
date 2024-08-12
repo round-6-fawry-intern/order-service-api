@@ -10,7 +10,7 @@ public interface WebClientService {
 
   void validateProductOutOfStock(List<ItemRequestModel> itemRequestModels);
 
-  List<ProductResponseModel> getProducts(List<Integer> productIds);
+  List<ProductResponseDTO> getProducts(List<Integer> productIds);
 
   double calculateDiscount(String couponCode, String customerEmail, double invoiceAmount);
 

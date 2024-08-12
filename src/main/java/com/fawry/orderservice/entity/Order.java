@@ -37,6 +37,6 @@ public class Order {
   @Column(name = "updated_at")
   private Timestamp updatedAt;
 
-  @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
   private List<OrderItem> orderItems;
 }

@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductResponseModel {
+public class ProductResponseDTO {
 
   private int id;
-  private String code;
+  private String category;
   private String name;
   private String description;
   private double price;
-  private String image;
+  private String imageUrl;
   private int quantity;
 }
