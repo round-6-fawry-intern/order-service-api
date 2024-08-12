@@ -6,7 +6,6 @@ import com.fawry.orderservice.error.IdsRequestError;
 import com.fawry.orderservice.error.ProductErrorModel;
 import com.fawry.orderservice.exception.ClientException;
 import com.fawry.orderservice.exception.ProductException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -68,7 +67,7 @@ public class WebClientServiceImpl implements WebClientService {
   }
 
   @Override
-  public List<ProductResponseModel> getProducts(List<Integer> ids) {
+  public List<ProductResponseDTO> getProducts(List<Integer> ids) {
 
     return webClient
         .build()
@@ -82,7 +81,7 @@ public class WebClientServiceImpl implements WebClientService {
                 clientResponse
                     .bodyToMono(IdsRequestError.class)
                     .flatMap(error -> Mono.error(new ClientException(error.getMessage()))))
-        .bodyToFlux(ProductResponseModel.class)
+        .bodyToFlux(ProductResponseDTO.class)
         .collectList()
         .block();
   }
